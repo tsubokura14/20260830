@@ -1,0 +1,13 @@
+-- 初期ユーザーを手動登録するSQL（技術仕様書3.2: サインアップ機能は設けず、手動INSERTのみ）
+--
+-- 手順:
+-- 1. ローカルで以下を実行し、パスワードのハッシュ値を生成する
+--      node scripts/hash-password.mjs <お好きなパスワード（8文字以上）>
+-- 2. 生成されたハッシュ値を下のINSERT文に貼り付ける
+-- 3. NeonのSQL EditorでこのSQLを実行する
+--
+-- 「未設定」グループはグループ未指定で実績を初めて登録したときに自動作成されるため、
+-- ここで作成する必要はない（仕様書4.4 / actions/achievements.ts の resolveGroupId 参照）。
+
+INSERT INTO users (name, password_hash)
+VALUES ('あなたの名前', 'ここに生成したハッシュ値を貼り付け');
