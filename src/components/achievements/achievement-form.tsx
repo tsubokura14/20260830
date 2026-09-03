@@ -109,7 +109,7 @@ export function AchievementForm({
         </p>
       )}
 
-      <Button type="submit" disabled={isPending}>
+      <Button type="submit" disabled={isPending} className="md:self-start">
         {isPending ? "保存中..." : submitLabel}
       </Button>
     </form>
