@@ -18,7 +18,7 @@ export default async function GroupsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-lg font-semibold">グループ管理</h1>
+      <h1 className="text-lg font-semibold">グループ</h1>
 
       <ul className="flex flex-col gap-3">
         {groups.map((group) => (

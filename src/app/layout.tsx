@@ -4,7 +4,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "学習実績可視化",
+  title: "実績記録アプリ",
   description: "学習の積み上げを可視化するアプリ",
 };
 

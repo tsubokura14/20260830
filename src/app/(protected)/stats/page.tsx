@@ -60,7 +60,7 @@ export default async function StatsPage({ searchParams }: StatsPageProps) {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-lg font-semibold">実績数確認</h1>
+      <h1 className="text-lg font-semibold">集計</h1>
 
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="mb-3 text-sm font-medium text-slate-600">

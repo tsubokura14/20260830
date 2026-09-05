@@ -17,7 +17,7 @@ export default async function NewAchievementPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-lg font-semibold">実績を記録</h1>
+      <h1 className="text-lg font-semibold">記録</h1>
       <AchievementForm
         action={createAchievementAction}
         groups={groups}

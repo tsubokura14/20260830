@@ -56,7 +56,7 @@ export function MonthFilterForm({
         </label>
       )}
       <Button type="submit" variant="secondary">
-        絞り込む
+        反映
       </Button>
     </form>
   );

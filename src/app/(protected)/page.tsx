@@ -6,6 +6,7 @@ import { achievementGroups, achievements } from "@drizzle/schema";
 import { getCurrentUserId } from "@/lib/auth/session";
 import { GroupBadge } from "@/components/groups/group-badge";
 import { MonthFilterForm } from "@/components/achievements/month-filter-form";
+import { AchievementTypeIcon } from "@/components/achievements/achievement-type-icon";
 
 type VisualizePageProps = {
   searchParams: Promise<{ year?: string; month?: string; groupId?: string }>;
@@ -68,7 +69,7 @@ export default async function VisualizePage({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-lg font-semibold">可視化</h1>
+      <h1 className="text-lg font-semibold">一覧</h1>
 
       <MonthFilterForm
         year={year}
@@ -93,19 +94,15 @@ export default async function VisualizePage({
               ) : (
                 <ul className="flex flex-col gap-2">
                   {dayItems.map((item) => (
-                    <li key={item.id} className="flex items-start gap-2">
+                    <li key={item.id} className="flex items-center gap-2">
+                      <AchievementTypeIcon type={item.type} />
                       <GroupBadge group={groupMap.get(item.groupId)} />
-                      <div className="flex gap-2">
-                        <p className="text-xs text-slate-400">
-                          {item.type === "input" ? "Input" : "Output"}
-                        </p>                        
-                        <Link
-                          href={`/achievements/${item.id}/edit`}
-                          className="text-sm font-medium hover:underline"
-                        >
-                          {item.theme}
-                        </Link>
-                      </div>
+                      <Link
+                        href={`/achievements/${item.id}/edit`}
+                        className="text-sm font-medium hover:underline"
+                      >
+                        {item.theme}
+                      </Link>
                     </li>
                   ))}
                 </ul>

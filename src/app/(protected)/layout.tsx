@@ -4,13 +4,13 @@ import { logoutAction } from "@/actions/auth";
 import { MobileNav } from "@/components/layout/mobile-nav";
 
 const NAV_ITEMS = [
-  { href: "/", label: "可視化" },
-  { href: "/achievements/new", label: "実績を記録" },
-  { href: "/groups", label: "グループ管理" },
-  { href: "/stats", label: "実績数確認" },
+  { href: "/", label: "一覧" },
+  { href: "/achievements/new", label: "記録" },
+  { href: "/groups", label: "グループ" },
+  { href: "/stats", label: "集計" },
 ];
 
-const APP_NAME = "学習実績可視化";
+const APP_NAME = "実績記録アプリ";
 
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   return (

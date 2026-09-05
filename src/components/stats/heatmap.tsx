@@ -25,15 +25,18 @@ export function Heatmap({ year, month, countByDate }: HeatmapProps) {
   const weeks = chunkIntoWeeks(days);
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-400">
+    <div className="w-fit rounded-lg border border-slate-200 bg-white p-4">
+      <div className="grid grid-cols-[repeat(7,1.5rem)] gap-1 text-center text-xs text-slate-400">
         {WEEKDAY_LABELS.map((label) => (
           <span key={label}>{label}</span>
         ))}
       </div>
       <div className="mt-1 flex flex-col gap-1">
         {weeks.map((week) => (
-          <div key={week[0].dateKey} className="grid grid-cols-7 gap-1">
+          <div
+            key={week[0].dateKey}
+            className="grid grid-cols-[repeat(7,1.5rem)] gap-1"
+          >
             {week.map((day) => {
               const count = countByDate.get(day.dateKey) ?? 0;
               const level = getHeatmapLevel(count);
@@ -41,7 +44,7 @@ export function Heatmap({ year, month, countByDate }: HeatmapProps) {
                 <div
                   key={day.dateKey}
                   title={`${day.dateKey}: ${count}件`}
-                  className={`aspect-square rounded-sm ${LEVEL_CLASSES[level]} ${
+                  className={`h-6 w-6 rounded-sm ${LEVEL_CLASSES[level]} ${
                     day.inCurrentMonth ? "" : "opacity-30"
                   }`}
                 />
