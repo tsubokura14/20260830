@@ -57,11 +57,14 @@ export default async function VisualizePage({
     byDate.set(item.date, list);
   }
 
+  // その月の日数を取得（Dateオブジェクト → 数値）
   const daysInMonth = rangeEnd.getUTCDate();
+  const todayKey = formatDateKey(now);
   const days = Array.from({ length: daysInMonth }, (_, i) => {
     const date = new Date(Date.UTC(year, month - 1, i + 1));
     return { dateKey: formatDateKey(date), date };
-  }).reverse(); // 直近の日を上に
+  }).filter((d) => d.dateKey <= todayKey)
+    .reverse();
 
   return (
     <div className="flex flex-col gap-6">
@@ -92,16 +95,16 @@ export default async function VisualizePage({
                   {dayItems.map((item) => (
                     <li key={item.id} className="flex items-start gap-2">
                       <GroupBadge group={groupMap.get(item.groupId)} />
-                      <div>
+                      <div className="flex gap-2">
+                        <p className="text-xs text-slate-400">
+                          {item.type === "input" ? "Input" : "Output"}
+                        </p>                        
                         <Link
                           href={`/achievements/${item.id}/edit`}
                           className="text-sm font-medium hover:underline"
                         >
                           {item.theme}
                         </Link>
-                        <p className="text-xs text-slate-400">
-                          {item.type === "input" ? "インプット" : "アウトプット"}
-                        </p>
                       </div>
                     </li>
                   ))}
