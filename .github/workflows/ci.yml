@@ -28,6 +28,7 @@ jobs:
         with:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
           api_key: ${{ secrets.NEON_API_KEY }}
+          branch_name: ci-${{ github.run_id }}
 
       - name: Run migrations against the branch
         run: npm run db:migrate
