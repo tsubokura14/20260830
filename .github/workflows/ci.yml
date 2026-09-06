@@ -10,40 +10,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
+      # package-lock.jsonの内容どおりに依存パッケージを厳密にインストールする
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm run test
+      - run: npm run test # 単体テスト（Vitest）を実行する。DBに依存しない純粋なロジックのテストがここで走る
 
-      # 技術仕様書5.2: 結合テストはNeonの使い捨てブランチに対して実行する
+      # 結合テストはNeonの使い捨てブランチに対して実行する
+      # 結合テスト専用に、本番DBとは別の「使い捨てのDBブランチ」をNeon上に新しく作成する
       - name: Create Neon branch
+        # このステップに"neon-branch"という名前を付け、後のステップから結果を参照できるようにする
         id: neon-branch
+        # Neon公式が提供する「ブランチを作成する」ためのGitHub Action（既製のプログラム部品）を使う
         uses: neondatabase/create-branch-action@v5
         with:
+          # どのNeonプロジェクトに対して作成するか。値はGitHubのSecrets（秘密情報）から読み込む
           project_id: ${{ secrets.NEON_PROJECT_ID }}
+          # Neonに接続するためのAPIキー。これもSecretsに登録された値を使う
           api_key: ${{ secrets.NEON_API_KEY }}
+          # 作成するブランチの名前。github.run_id（実行ごとに変わる一意な番号）を含め、名前の重複を防ぐ
           branch_name: ci-${{ github.run_id }}
 
+      # 作成した使い捨てブランチに対して、DBのマイグレーション（スキーマ変更の適用）を実行する
       - name: Run migrations against the branch
         run: npm run db:migrate
+        # このコマンドだけに一時的に渡す環境変数
         env:
+          # 直前の「Create Neon branch」ステップが出力した、使い捨てブランチへの接続文字列を使う
           DATABASE_URL: ${{ steps.neon-branch.outputs.db_url }}
 
+      # 使い捨てブランチに対して結合テスト（実DBへの読み書きを伴うテスト）を実行する
       - name: Run integration tests
         run: npm run test:integration
         env:
+          # ここでも本番DBではなく、使い捨てブランチのDATABASE_URLを渡す
           DATABASE_URL: ${{ steps.neon-branch.outputs.db_url }}
 
+      # テストが終わったら、使い捨てブランチを削除して片付ける
       - name: Delete Neon branch
+        # if: always() を付けることで、途中のステップが失敗した場合でも必ずこの削除処理を実行する
+        # （付けないと、テスト失敗時にブランチが削除されずゴミとして残り続けてしまう）
         if: always()
+        # Neon公式が提供する「ブランチを削除する」ためのGitHub Actionを使う
         uses: neondatabase/delete-branch-action@v3
         with:
           project_id: ${{ secrets.NEON_PROJECT_ID }}
           api_key: ${{ secrets.NEON_API_KEY }}
+          # 削除対象のブランチID。「Create Neon branch」ステップの出力から取得する
           branch: ${{ steps.neon-branch.outputs.branch_id }}
