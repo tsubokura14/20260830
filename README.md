@@ -91,6 +91,16 @@ npm run test        # 単体テスト（Vitest）
 npm run test:integration  # 結合テスト（実DBが必要）
 ```
 
+`test:integration` をローカルで実行するには、本番用の `.env.local` とは別に `.env.test.local` が必要です（本番DBに書き込みが発生するのを避けるため）。CIではNeonの使い捨てブランチを使いますが、ローカルではNeon上に検証用の別ブランチ・別プロジェクトを用意し、その接続文字列を設定してください。
+
+```bash
+cp .env.test.local.example .env.test.local
+```
+
+| 変数 | 説明 |
+|---|---|
+| `DATABASE_URL` | 結合テスト専用のPostgres接続文字列（本番と同じ値を使わないこと） |
+
 E2Eテスト（Playwright、`e2e/`）はCIには含めず、デプロイ前に手動実行する運用です。詳細は [docs/技術仕様書.md](docs/技術仕様書.md) を参照してください。
 
 ## ディレクトリ構成

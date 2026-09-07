@@ -14,8 +14,8 @@ export type GroupActionState = {
 const FOREIGN_KEY_VIOLATION = "23503";
 
 export async function createGroupAction(
-  _prevState: GroupActionState,
-  formData: FormData,
+  _prevState: GroupActionState, // 前回のこのアクションの実行結果
+  formData: FormData, // フォームに入力された値
 ): Promise<GroupActionState> {
   const userId = await getCurrentUserId();
   if (!userId) return { error: "ログインが必要です" };

@@ -20,10 +20,10 @@ async function login(page: import("@playwright/test").Page) {
   await expect(page).toHaveURL("/");
 }
 
-test("ログイン→実績登録→可視化画面に反映される", async ({ page }) => {
+test("ログイン→実績登録→一覧画面に反映される", async ({ page }) => {
   await login(page);
 
-  await page.getByRole("link", { name: "実績を記録" }).click();
+  await page.getByRole("link", { name: "記録" }).click();
   const theme = `E2Eテスト ${Date.now()}`;
   await page.getByLabel("テーマ").fill(theme);
   await page.getByRole("button", { name: "記録する" }).click();
@@ -47,7 +47,7 @@ test("実績が紐づくグループは削除できない", async ({ page }) => 
   await expect(page.getByText("紐づく実績があるため削除できません")).toBeVisible();
 });
 
-test("可視化画面のフィルターがURLクエリに反映され、リロードしても保持される", async ({
+test("一覧画面のフィルターがURLクエリに反映され、リロードしても保持される", async ({
   page,
 }) => {
   await login(page);
@@ -55,7 +55,7 @@ test("可視化画面のフィルターがURLクエリに反映され、リロ�
 
   await page.getByLabel("年").selectOption("2026");
   await page.getByLabel("月").selectOption("1");
-  await page.getByRole("button", { name: "絞り込む" }).click();
+  await page.getByRole("button", { name: "反映" }).click();
 
   await expect(page).toHaveURL(/year=2026&month=1/);
   await page.reload();

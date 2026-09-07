@@ -19,7 +19,7 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 50 }).notNull(),
   passwordHash: varchar("password_hash").notNull(),
-  // ログイン試行回数の制限（技術仕様書3.2）: 5回失敗で15分ロック
+  // ログイン試行回数の制限: 5回失敗で15分ロック
   failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
   lockedUntil: timestamp("locked_until", { withTimezone: true }),
 });

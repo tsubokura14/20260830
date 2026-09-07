@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 // users.passwordHash は平文パスワードと1:1に対応しないため、drizzle-zodではなく手書きする
-// （思考プロセス_仕様.md「drizzle-zod：Zodが不要になるわけではないと整理」参照）
 export const loginFormSchema = z.object({
   name: z
     .string()
