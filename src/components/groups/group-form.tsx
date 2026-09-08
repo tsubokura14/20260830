@@ -25,14 +25,20 @@ type GroupFormProps = {
 const initialState: GroupActionState = {};
 
 export function GroupForm({
-  action,
+  action, // フォーム送信用に、新規作成か更新の関数を受け取る。
   initialValues,
   submitLabel,
 }: GroupFormProps) {
-  const [state, formAction, isPending] = useActionState(action, initialState);
+
+  // action: サブミット時に呼び出される関数（アクション）
+  // initialState: アクションに関連するStateの初期値
+  // state: 現在のステート。初回レンダリング時には引数initialStateの値、アクション実行後は戻り値。
+  // submitAction: アクション関数。
+  // isPending: 処理中であるかを表すフラグ。
+  const [state, submitAction, isPending] = useActionState(action, initialState);
 
   return (
-    <form action={formAction} className="flex flex-wrap items-end gap-3">
+    <form action={submitAction} className="flex flex-wrap items-end gap-3">
       <Field label="名前" htmlFor="name">
         <Input
           id="name"

@@ -4,6 +4,7 @@ import { clsx } from "@/lib/clsx";
 export function Input({
   className,
   ...props
+  // InputHTMLAttributes: Inputタグに付与できる属性を全て内包したオブジェクト
 }: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
