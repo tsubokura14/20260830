@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { achievementGroups } from "@drizzle/schema";
@@ -52,10 +52,18 @@ export async function updateGroupAction(
     return { error: parsed.error.issues[0]?.message ?? "入力内容を確認してください" };
   }
 
-  await db
+  const [updated] = await db
     .update(achievementGroups)
     .set(parsed.data)
-    .where(eq(achievementGroups.id, groupId));
+    .where(
+      and(
+        eq(achievementGroups.id, groupId),
+        eq(achievementGroups.userId, userId),
+      ),
+    )
+    .returning({ id: achievementGroups.id });
+
+  if (!updated) return { error: "グループが見つかりません" };
 
   revalidatePath("/groups");
   return {};
@@ -68,7 +76,17 @@ export async function deleteGroupAction(
   if (!userId) return { error: "ログインが必要です" };
 
   try {
-    await db.delete(achievementGroups).where(eq(achievementGroups.id, groupId));
+    const [deleted] = await db
+      .delete(achievementGroups)
+      .where(
+        and(
+          eq(achievementGroups.id, groupId),
+          eq(achievementGroups.userId, userId),
+        ),
+      )
+      .returning({ id: achievementGroups.id });
+
+    if (!deleted) return { error: "グループが見つかりません" };
   } catch (error) {
     // 仕様書4.4: 実績が紐づくグループは ON DELETE RESTRICT により削除不可
     if (

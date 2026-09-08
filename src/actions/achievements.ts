@@ -87,10 +87,15 @@ export async function updateAchievementAction(
   const { groupId, ...values } = parsed.data;
   const resolvedGroupId = await resolveGroupId(userId, groupId);
 
-  await db
+  const [updated] = await db
     .update(achievements)
     .set({ ...values, groupId: resolvedGroupId })
-    .where(eq(achievements.id, achievementId));
+    .where(
+      and(eq(achievements.id, achievementId), eq(achievements.userId, userId)),
+    )
+    .returning({ id: achievements.id });
+
+  if (!updated) return { error: "実績が見つかりません" };
 
   revalidatePath("/");
   revalidatePath("/stats");
@@ -103,7 +108,14 @@ export async function deleteAchievementAction(
   const userId = await getCurrentUserId();
   if (!userId) return { error: "ログインが必要です" };
 
-  await db.delete(achievements).where(eq(achievements.id, achievementId));
+  const [deleted] = await db
+    .delete(achievements)
+    .where(
+      and(eq(achievements.id, achievementId), eq(achievements.userId, userId)),
+    )
+    .returning({ id: achievements.id });
+
+  if (!deleted) return { error: "実績が見つかりません" };
 
   revalidatePath("/");
   revalidatePath("/stats");
