@@ -45,6 +45,8 @@ export async function loginAction(
     .limit(1);
 
   if (!user) {
+    // 「名前が存在しない」と「パスワードが違う」を区別するとユーザー名の
+    // 存在有無が漏れる（ユーザー列挙攻撃）ため、同じ文言で返す。
     return { error: "名前またはパスワードが正しくありません" };
   }
 
@@ -59,6 +61,8 @@ export async function loginAction(
 
   if (!isValid) {
     const failedAttempts = user.failedLoginAttempts + 1;
+    // 上限に達した回だけロックし、それ未満なら失敗回数のカウントのみ更新する
+    // （総当たり攻撃対策。lockedUntilは上限到達時のみ設定される）。
     const lockedUntil =
       failedAttempts >= MAX_FAILED_ATTEMPTS
         ? new Date(Date.now() + LOCK_DURATION_MS)
@@ -70,11 +74,14 @@ export async function loginAction(
     return { error: "名前またはパスワードが正しくありません" };
   }
 
+  // 正しいパスワードでログインできた時点で、過去の失敗回数・ロックは意味を失うためリセットする。
   await db
     .update(users)
     .set({ failedLoginAttempts: 0, lockedUntil: null })
     .where(eq(users.id, user.id));
 
+  // ここまで来て初めてセッションを発行する＝以後はCookieの検証だけで
+  // 認証済みとみなせる（毎回パスワード照合はしない）。
   const token = await signSessionToken({ userId: user.id });
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, token, sessionCookieOptions);
@@ -84,6 +91,8 @@ export async function loginAction(
 
 export async function logoutAction() {
   const cookieStore = await cookies();
+  // セッションCookieを削除するだけでよい（JWTはサーバー側で無効化する仕組みを持たないため、
+  // ブラウザ側からトークンを消すことでログアウトを表現する）。
   cookieStore.delete(SESSION_COOKIE_NAME);
   redirect("/login");
 }
