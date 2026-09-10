@@ -11,7 +11,9 @@ export type GroupActionState = {
   error?: string;
 };
 
-const FOREIGN_KEY_VIOLATION = "23503";
+// ON DELETE RESTRICTによる削除拒否は23503(foreign_key_violation)ではなく
+// 23001(restrict_violation)としてPostgreSQLから返される。
+const RESTRICT_VIOLATION = "23001";
 
 export async function createGroupAction(
   _prevState: GroupActionState, // 前回のこのアクションの実行結果
@@ -89,11 +91,14 @@ export async function deleteGroupAction(
     if (!deleted) return { error: "グループが見つかりません" };
   } catch (error) {
     // 仕様書4.4: 実績が紐づくグループは ON DELETE RESTRICT により削除不可
+    // DrizzleはNeonドライバの生エラー(code付き)をラップしてthrowするため、
+    // コードは error.code ではなく error.cause.code に入っている。
+    const cause = error instanceof Error ? error.cause : undefined;
     if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      (error as { code?: string }).code === FOREIGN_KEY_VIOLATION
+      typeof cause === "object" &&
+      cause !== null &&
+      "code" in cause &&
+      (cause as { code?: string }).code === RESTRICT_VIOLATION
     ) {
       return { error: "紐づく実績があるため削除できません" };
     }

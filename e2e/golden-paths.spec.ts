@@ -7,6 +7,9 @@ import { expect, test } from "@playwright/test";
 const userName = process.env.E2E_USER_NAME;
 const userPassword = process.env.E2E_USER_PASSWORD;
 
+console.log(userName);
+console.log(userPassword);
+
 test.skip(
   !userName || !userPassword,
   "E2E_USER_NAME / E2E_USER_PASSWORD が未設定のためスキップ",
@@ -23,7 +26,7 @@ async function login(page: import("@playwright/test").Page) {
 test("ログイン→実績登録→一覧画面に反映される", async ({ page }) => {
   await login(page);
 
-  await page.getByRole("link", { name: "記録" }).click();
+  await page.getByRole("link", { name: "記録", exact: true }).click();
   const theme = `E2Eテスト ${Date.now()}`;
   await page.getByLabel("テーマ").fill(theme);
   await page.getByRole("button", { name: "記録する" }).click();
@@ -37,12 +40,14 @@ test("実績が紐づくグループは削除できない", async ({ page }) => 
   await page.goto("/groups");
 
   // 「未設定」グループは既存実績が必ず紐づいている前提で、削除失敗を確認する
+  // confirm()ダイアログはclick()と同時に発生するため、リスナーはclick()より前に登録する必要がある
+  // （登録前にダイアログが開くと、Playwrightが自動でキャンセル扱いにしてしまう）
+  page.once("dialog", (dialog) => dialog.accept());
   await page
     .getByRole("listitem")
     .filter({ hasText: "未設定" })
     .getByRole("button", { name: "削除" })
     .click();
-  page.once("dialog", (dialog) => dialog.accept());
 
   await expect(page.getByText("紐づく実績があるため削除できません")).toBeVisible();
 });
