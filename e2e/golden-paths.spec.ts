@@ -7,9 +7,6 @@ import { expect, test } from "@playwright/test";
 const userName = process.env.E2E_USER_NAME;
 const userPassword = process.env.E2E_USER_PASSWORD;
 
-console.log(userName);
-console.log(userPassword);
-
 test.skip(
   !userName || !userPassword,
   "E2E_USER_NAME / E2E_USER_PASSWORD が未設定のためスキップ",
